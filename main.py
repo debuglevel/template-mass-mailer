@@ -7,6 +7,11 @@ import pandas
 from jinja2 import Template
 import smtplib
 import ssl
+import logging
+import uuid
+from uuid import UUID
+from datetime import datetime
+from tinydb import TinyDB, Query
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -67,6 +72,30 @@ def send_mail(mail_address, mail_body, smtp_configuration):
         server.quit()
 
 
+def is_mail_sent(mail_address) -> bool:
+    logger.debug(f"Getting if mail is sent...")
+
+    logger.debug(f"Opening TinyDB...")
+    database = TinyDB('database.json')
+
+    query = Query()
+
+    x = database.get(query.email == mail_address)
+
+    if x is None:
+        return False
+    else:
+        return True
+
+
+def set_mail_sent(mail_address):
+    logger.debug(f"Setting mail as sent...")
+
+    database = TinyDB('database.json')
+    dictionary = {"email": mail_address, "status": "ok"}
+    database.insert(dictionary)
+
+
 def main():
     logger.debug(f"Running main...")
 
@@ -85,9 +114,13 @@ def main():
     }
 
     for mail_entry in mail_entries:
-        mail_address = mail_entry['email']
-        mail_body = get_mail_body(template, mail_entry)
-        send_mail(mail_address, mail_body, smtp_configuration)
+        if not is_mail_sent(mail_entry['email']):
+            mail_address = mail_entry['email']
+            mail_body = get_mail_body(template, mail_entry)
+            send_mail(mail_address, mail_body, smtp_configuration)
+            set_mail_sent(mail_entry['email'])
+        else:
+            logger.debug(f"Not sending mail to {mail_entry['email']}, as already in database.")
 
 
 # Press the green button in the gutter to run the script.
