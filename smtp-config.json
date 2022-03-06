@@ -1,0 +1,8 @@
+{
+        "server": "mail.smtpbucket.com",
+        "port": 8025,
+        "username": "",
+        "password": "",
+        "from": "the@establishment.invalid",
+        "subject": "Your beautiful subject"
+}

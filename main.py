@@ -12,6 +12,7 @@ import uuid
 from uuid import UUID
 from datetime import datetime
 from tinydb import TinyDB, Query
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -96,6 +97,12 @@ def set_mail_sent(mail_address):
     database.insert(dictionary)
 
 
+def get_smtp_configuration():
+    with open('smtp-config.json') as f:
+        data = f.read()
+        return json.loads(data)
+
+
 def main():
     logger.debug(f"Running main...")
 
@@ -104,14 +111,7 @@ def main():
 
     template = "template.jinja2"
 
-    smtp_configuration = {
-        'server': "mail.smtpbucket.com",
-        "port": 8025,
-        "username": "",
-        "password": "",
-        "from": "the@establishment.invalid",
-        "subject": "Your beautiful subject",
-    }
+    smtp_configuration = get_smtp_configuration()
 
     for mail_entry in mail_entries:
         if not is_mail_sent(mail_entry['email']):
