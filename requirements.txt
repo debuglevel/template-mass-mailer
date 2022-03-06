@@ -1,0 +1,3 @@
+pandas==1.4.1
+Jinja2==3.0.3
+python-simplemail==2.1.0
